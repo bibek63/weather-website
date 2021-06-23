@@ -8,6 +8,7 @@ const forcast = require("./utils/forcast");
 //console.log(__dirname);
 
 const app = express();
+const port = process.env.PORT || 3000;
 
 // Define paths for express config
 const publicDirectoryPath = path.join(__dirname, "../public");
@@ -67,21 +68,24 @@ app.get("/weather", (req, res) => {
   if (!req.query.address) {
     return res.send({ error: "Error, Supply the address you donut!! " });
   }
-  geocode(req.query.address, (error, { latitude, longitude, location } = {}) => {
-    if (error) {
-      return res.send({ error });
-    }
-    forcast(latitude, longitude, (error, forcastData) => {
+  geocode(
+    req.query.address,
+    (error, { latitude, longitude, location } = {}) => {
       if (error) {
         return res.send({ error });
       }
-      res.send({
-        forcast: forcastData,
-        location: location,
-        address: req.query.address,
+      forcast(latitude, longitude, (error, forcastData) => {
+        if (error) {
+          return res.send({ error });
+        }
+        res.send({
+          forcast: forcastData,
+          location: location,
+          address: req.query.address,
+        });
       });
-    });
-  });
+    }
+  );
 
   // res.send({
   //   forcast: "Its raining ",
@@ -110,6 +114,6 @@ app.get("*", (req, res) => {
   res.send("My god type a valid url");
 });
 
-app.listen(3000, () => {
-  console.log("Server is up on port 3000");
+app.listen(port, () => {
+  console.log("Server is up on port " + port);
 });
